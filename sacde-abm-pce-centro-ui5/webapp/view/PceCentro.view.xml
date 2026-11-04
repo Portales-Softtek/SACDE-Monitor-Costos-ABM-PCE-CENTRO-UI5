@@ -166,7 +166,7 @@
 
             <Title
                 id="idRegistrosTitle"
-                text="{i18n>title.registros} (5)"
+                text="{i18n>title.registros} (0)"
                 titleStyle="H5"/>
 
             <HBox>
@@ -236,7 +236,7 @@
 
                         <Text text="{OServiceModel>centroLogistico}"/>
 
-                        <Text text="{OServiceModel>descripcion}" visible="{= !!${OServiceModel>descripcion} }"/>
+                        <Text text="{OServiceModel>descripcion}"/>
 
                         <!-- PCE chip -->
                         <HBox alignItems="Center" renderType="Bare">
@@ -264,8 +264,7 @@
                         <Text
                             text="{
                                 path: 'OServiceModel>modifiedAt',
-                                type: 'sap.ui.model.type.DateTime',
-                                formatOptions: { pattern: 'dd/MM/yyyy HH:mm' }
+                                formatter: '.formatDateTime'
                             }"/>
 
                         <HBox justifyContent="End">
@@ -294,7 +293,7 @@
             class="sapUiSmallMarginTop">
             <Text
                 id="idMostrandoRegistrosText"
-                text="{i18n>text.mostrando} 5 {i18n>text.de} 5"/>
+                text="{i18n>text.mostrando} 0 {i18n>text.de} 0"/>
         </HBox>
 
     </VBox>

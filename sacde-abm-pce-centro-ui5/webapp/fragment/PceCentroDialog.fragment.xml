@@ -68,7 +68,8 @@
                         width="100%"
                         showValueHelp="true"
                         valueHelpRequest="onValueHelpRequest"
-                        change=".onPersonFieldChange">
+                        change=".onPersonFieldChange"
+                        editable="false">
                         <customData>
                             <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
                             <core:CustomData key="field" value="NombreApellido"/>
@@ -83,7 +84,8 @@
                         id="idDialogEmail"
                         value="{dialog>/email}"
                         width="100%"
-                        type="Email"/>
+                        type="Email"
+                        editable="false"/>
                 </VBox>
 
                 <VBox class="sapUiSmallMarginBottom">

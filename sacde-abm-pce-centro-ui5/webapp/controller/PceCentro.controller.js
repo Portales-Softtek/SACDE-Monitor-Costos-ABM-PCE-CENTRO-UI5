@@ -26,6 +26,36 @@ function(
         {
 
             onInit: function () {
+                const oModel = this.getOwnerComponent().getModel("OServiceModel");
+                if (oModel) {
+                    oModel.attachEventOnce("dataLoaded", () => {
+                        this._actualizarContador(this.byId("idTablePceCentro").getBinding("items"));
+                    });
+                }
+
+                // Inicializar contador en 0 para evitar el placeholder (5)
+                this._actualizarContador();
+            },
+
+            formatDateTime: function (sValue) {
+                if (!sValue) {
+                    return "";
+                }
+
+                const oDate = new Date(sValue);
+                if (isNaN(oDate.getTime())) {
+                    return sValue;
+                }
+
+                const options = {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                };
+
+                return oDate.toLocaleString("es-AR", options);
             },
 
             onSearch: function () {
@@ -70,8 +100,15 @@ function(
             },
 
             _actualizarContador: function (oBinding) {
-                const oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
-                const iTotal = this.getView().getModel("OServiceModel").getProperty("/PceCentroLogistico").length;
+                const oI18nModel = this.getView()?.getModel("i18n");
+                if (!oI18nModel) {
+                    return;
+                }
+
+                const oResourceBundle = oI18nModel.getResourceBundle();
+                const oServiceModel = this.getView()?.getModel("OServiceModel") || this.getOwnerComponent()?.getModel("OServiceModel");
+                const aData = oServiceModel ? oServiceModel.getProperty("/PceCentroLogistico") || [] : [];
+                const iTotal = aData.length;
 
                 let iFiltrados = iTotal;
                 if (oBinding) {
@@ -174,7 +211,22 @@ function(
                     this._populateDependentField(sDependentField, oObj);
                 }
 
+                if (this._vhInput.getId().endsWith("idDialogUsuario")) {
+                    this._populateUsuarioData(oObj);
+                }
+
                 this._oValueHelpDialog.close();
+            },
+
+            _populateUsuarioData: function (oUsuario) {
+                const oDialogModel = this.getView().getModel("dialog");
+
+                if (!oDialogModel || !oUsuario) {
+                    return;
+                }
+
+                oDialogModel.setProperty("/nombre", oUsuario.descripcion || "");
+                oDialogModel.setProperty("/email", oUsuario.email || "");
             },
 
             _populateDependentField: function (sDependentField, oObj) {
@@ -234,6 +286,14 @@ function(
                     this.getView()
                         .getModel("OServiceModel")
                         .setProperty("/ValueHelp", aRows);
+
+                    if (this._vhEntitySet === "ZI_COA_USUARIO_VH" && this._vhInput.getId().endsWith("idDialogUsuario")) {
+                        const sValueUpper = sValue.toUpperCase();
+                        const oExacto = aRows.find(oRow => oRow.codigo && oRow.codigo.toUpperCase() === sValueUpper);
+                        if (oExacto) {
+                            this._populateUsuarioData(oExacto);
+                        }
+                    }
                 } catch (error) {
                     this.getView()
                         .getModel("OServiceModel")
@@ -318,13 +378,20 @@ function(
             },
 
             onPersonFieldChange: function (oEvent) {
+                const oSource = oEvent.getSource();
                 const sValue = oEvent.getParameter("value")?.trim();
-                const sDependentField = oEvent.getSource().data("dependentField");
+                const sDependentField = oSource.data("dependentField");
 
                 if (!sValue && sDependentField) {
                     this.getView()
                         .getModel("dialog")
                         .setProperty("/" + sDependentField, "");
+                }
+
+                if (oSource.getId().endsWith("idDialogUsuario") && !sValue) {
+                    const oDialogModel = this.getView().getModel("dialog");
+                    oDialogModel.setProperty("/nombre", "");
+                    oDialogModel.setProperty("/email", "");
                 }
             },
 

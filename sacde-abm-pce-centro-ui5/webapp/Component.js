@@ -51,6 +51,7 @@ sap.ui.define([
             });
 
             this.getModel("OServiceModel").setData(cleanData);
+            this.getModel("OServiceModel").fireEvent("dataLoaded");
         },
 
         refreshData: async function () {
@@ -69,6 +70,7 @@ sap.ui.define([
             });
 
             this.getModel("OServiceModel").setData(cleanData);
+            this.getModel("OServiceModel").fireEvent("dataLoaded");
         },
 
         getI18nText: function (sKey, aArgs) {
