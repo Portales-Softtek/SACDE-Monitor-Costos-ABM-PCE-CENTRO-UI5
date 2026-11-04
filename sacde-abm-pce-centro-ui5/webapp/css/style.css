@@ -1,0 +1,53 @@
+.activeUser {
+    color: #107E3E !important;
+    font-weight: bold !important;
+}
+
+.stickyFilterBar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #fff;
+}
+
+/* Chip de PCE con iniciales */
+.pceChip {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #E2F0FE;
+    color: #0070D2;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+.pceName {
+    font-weight: 600;
+    color: #32363A;
+}
+
+.pceEmail {
+    font-size: 0.75rem;
+    color: #6A6D70;
+}
+
+/* Badges de estado */
+.statusBadge .sapMObjStatusText {
+    display: inline-block;
+    border-radius: 0.75rem;
+    padding: 0.125rem 0.625rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.statusActive .sapMObjStatusText {
+    color: #107E3E !important;
+    background-color: #F1F8F4;
+    border: 1px solid #107E3E;
+}
+
+.statusInactive .sapMObjStatusText {
+    color: #B71C1C !important;
+    background-color: #FFF5F5;
+    border: 1px solid #B71C1C;
+}

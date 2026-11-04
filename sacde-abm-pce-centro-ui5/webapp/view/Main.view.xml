@@ -1,0 +1,20 @@
+<mvc:View
+    controllerName="sacde.abm.pce.centro.ui5.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+    <Page
+        id="page"
+        showHeader="false">
+
+        <content>
+
+            <mvc:XMLView
+                id="idPceCentroView"
+                viewName="sacde.abm.pce.centro.ui5.view.PceCentro"/>
+
+        </content>
+
+    </Page>
+
+</mvc:View>

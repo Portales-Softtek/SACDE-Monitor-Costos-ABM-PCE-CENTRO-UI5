@@ -1,0 +1,80 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="idValueHelpDialog"
+        title="{i18n>dialog.valuehelp.title}"
+        contentWidth="800px"
+        contentHeight="500px">
+
+        <VBox
+            id="idValueHelpVBox">
+
+            <SearchField
+                id="idValueHelpSearchField"
+                width="100%"
+                liveChange="onSearchFieldLiveChange"/>
+
+            <Table
+                id="idValueHelpTable"
+                noDataText="{i18n>message.nodata}"
+                items="{OServiceModel>/ValueHelp}">
+
+                <columns>
+
+                    <Column
+                        id="idValueHelpCodigoColumn">
+
+                        <Text text="{valueHelp>/column1}"/>
+
+                    </Column>
+
+                    <Column
+                        id="idValueHelpDescripcionColumn">
+
+                        <Text text="{valueHelp>/column2}"/>
+
+                    </Column>
+
+                </columns>
+
+                <items>
+
+                    <ColumnListItem
+                        id="idValueHelpColumnListItem"
+                        type="Active"
+                        press="onValueHelpItemPress">
+
+                        <cells>
+
+                            <Text
+                                id="idValueHelpCodigoText"
+                                text="{OServiceModel>codigo}"/>
+
+                            <Text
+                                id="idValueHelpDescripcionText"
+                                text="{OServiceModel>descripcion}"/>
+
+                        </cells>
+
+                    </ColumnListItem>
+
+                </items>
+
+            </Table>
+
+        </VBox>
+
+        <endButton>
+
+            <Button
+                id="idCerrarValueHelpButton"
+                text="{i18n>button.close}"
+                press="onCerrarValueHelp"/>
+
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

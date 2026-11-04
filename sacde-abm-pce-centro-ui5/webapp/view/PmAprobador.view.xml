@@ -1,0 +1,19 @@
+<mvc:View
+    controllerName="sacde.abm.pce.centro.ui5.controller.PmAprobador"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+
+    <VBox class="sapUiSmallMargin">
+
+        <Title
+            text="{i18n>view.pm.aprobador.title}"
+            titleStyle="H3"
+            class="sapUiSmallMarginBottom"/>
+
+        <MessageStrip
+            text="Vista en construcción"
+            type="Warning"/>
+
+    </VBox>
+
+</mvc:View>

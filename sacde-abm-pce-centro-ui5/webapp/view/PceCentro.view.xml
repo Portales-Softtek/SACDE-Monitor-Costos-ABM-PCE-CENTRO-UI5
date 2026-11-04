@@ -1,0 +1,302 @@
+<mvc:View
+    controllerName="sacde.abm.pce.centro.ui5.controller.PceCentro"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+
+    <VBox
+        class="sapUiSmallMargin">
+
+        <!-- TÍTULO Y DESCRIPCIÓN -->
+        <VBox class="sapUiSmallMarginBottom">
+            <Title
+                id="idPceCentroTitle"
+                text="{i18n>view.pce.centro.title}"
+                titleStyle="H3"/>
+            <Text
+                text="{i18n>view.pce.centro.description}"
+                class="sapUiTinyMarginTop"/>
+        </VBox>
+
+        <!-- TABS -->
+        <IconTabBar
+            id="idIconTabBar"
+            selectedKey="pceCentro"
+            select="onTabSelect"
+            class="sapUiResponsiveContentPadding">
+
+            <items>
+                <IconTabFilter
+                    id="idTabPceCentro"
+                    key="pceCentro"
+                    text="{i18n>tab.pce.centro}"/>
+                <IconTabFilter
+                    id="idTabPmAprobador"
+                    key="pmAprobador"
+                    text="{i18n>tab.pm.aprobador}"/>
+                <IconTabFilter
+                    id="idTabAuditoria"
+                    key="auditoria"
+                    text="{i18n>tab.auditoria}"/>
+            </items>
+
+        </IconTabBar>
+
+        <!-- FILTROS -->
+        <VBox
+            id="idFilterBarContainerVBox"
+            class="sapUiMediumMarginTop stickyFilterBar">
+
+            <HBox
+                id="idFilterFieldsHBox"
+                alignItems="End"
+                wrap="Wrap"
+                class="sapUiSmallMarginTopBottom">
+
+                <VBox
+                    id="idCentroLogisticoFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="12rem">
+
+                    <Label text="{i18n>label.centro.logistico}" design="Bold"/>
+
+                    <Input
+                        id="idFilterCentroLogistico"
+                        width="100%"
+                        placeholder="{i18n>placeholder.centro.logistico}"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest">
+
+                        <customData>
+                            <core:CustomData
+                                key="entitySet"
+                                value="CentroLogisticoVHSet"/>
+
+                            <core:CustomData
+                                key="field"
+                                value="Centro"/>
+                        </customData>
+
+                    </Input>
+
+                </VBox>
+
+                <VBox
+                    id="idUsuarioFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="18rem">
+
+                    <Label text="{i18n>label.usuario.pce}" design="Bold"/>
+
+                    <Input
+                        id="idFilterUsuario"
+                        width="100%"
+                        placeholder="{i18n>placeholder.usuario.pce}"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest">
+
+                        <customData>
+                            <core:CustomData
+                                key="entitySet"
+                                value="ZI_COA_USUARIO_VH"/>
+
+                            <core:CustomData
+                                key="field"
+                                value="NombreApellido"/>
+                        </customData>
+
+                    </Input>
+
+                </VBox>
+
+                <VBox
+                    id="idEstadoFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="10rem">
+
+                    <Label text="{i18n>label.estado}" design="Bold"/>
+
+                    <Select
+                        id="idFilterEstado"
+                        width="100%"
+                        selectedKey="activos">
+
+                        <items>
+                            <core:Item key="todos" text="{i18n>estado.todos}"/>
+                            <core:Item key="activos" text="{i18n>estado.activos}"/>
+                            <core:Item key="inactivos" text="{i18n>estado.inactivos}"/>
+                        </items>
+
+                    </Select>
+
+                </VBox>
+
+                <VBox
+                    id="idBuscarButtonVBox">
+
+                    <Button
+                        id="idBuscarButton"
+                        text="{i18n>button.search}"
+                        type="Emphasized"
+                        press="onSearch"/>
+
+                </VBox>
+
+                <VBox
+                    id="idLimpiarButtonVBox"
+                    class="sapUiSmallMarginBegin">
+
+                    <Button
+                        id="idLimpiarButton"
+                        text="{i18n>button.clear}"
+                        press="onClearFilters"/>
+
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+
+        <!-- REGISTROS Y ACCIONES -->
+        <HBox
+            id="idHeaderContainerHBox"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+
+            <Title
+                id="idRegistrosTitle"
+                text="{i18n>title.registros} (5)"
+                titleStyle="H5"/>
+
+            <HBox>
+                <Button
+                    id="idExportarExcelButton"
+                    text="{i18n>button.export.excel}"
+                    press="onExportExcel"
+                    class="sapUiTinyMarginEnd"/>
+
+                <Button
+                    id="idNuevoButton"
+                    text="{i18n>button.new}"
+                    type="Emphasized"
+                    icon="sap-icon://add"
+                    press="onCreatePress"/>
+            </HBox>
+
+        </HBox>
+
+        <!-- TABLA -->
+        <Table
+            id="idTablePceCentro"
+            items="{
+                path: 'OServiceModel>/PceCentroLogistico',
+                sorter: [
+                    { path: 'centroLogistico' },
+                    { path: 'activo', descending: true }
+                ]
+            }"
+            growing="true"
+            growingScrollToLoad="true"
+            class="sapUiSmallMarginTop">
+
+            <columns>
+
+                <Column width="8rem">
+                    <Text text="{i18n>column.centro.logistico}"/>
+                </Column>
+
+                <Column>
+                    <Text text="{i18n>column.descripcion}"/>
+                </Column>
+
+                <Column width="22rem">
+                    <Text text="{i18n>column.pce}"/>
+                </Column>
+
+                <Column width="7rem">
+                    <Text text="{i18n>column.estado}"/>
+                </Column>
+
+                <Column width="13rem">
+                    <Text text="{i18n>column.modified.at}"/>
+                </Column>
+
+                <Column width="9rem" hAlign="End">
+                    <Text text="{i18n>column.action}"/>
+                </Column>
+
+            </columns>
+
+            <items>
+
+                <ColumnListItem>
+
+                    <cells>
+
+                        <Text text="{OServiceModel>centroLogistico}"/>
+
+                        <Text text="{OServiceModel>descripcion}" visible="{= !!${OServiceModel>descripcion} }"/>
+
+                        <!-- PCE chip -->
+                        <HBox alignItems="Center" renderType="Bare">
+                            <HBox
+                                class="pceChip sapUiTinyMarginEnd"
+                                alignItems="Center"
+                                justifyContent="Center">
+                                <Text
+                                    text="{= ${OServiceModel>usuario} ? ${OServiceModel>usuario}.substring(0, 2).toUpperCase() : '' }"
+                                    textAlign="Center"/>
+                            </HBox>
+                            <VBox>
+                                <Text text="{OServiceModel>nombre}" class="pceName"/>
+                                <Text
+                                    text="{= ${OServiceModel>email} + ' - ' + ${OServiceModel>usuario} }"
+                                    class="pceEmail"/>
+                            </VBox>
+                        </HBox>
+
+                        <ObjectStatus
+                            text="{= ${OServiceModel>activo} ? ${i18n>estado.activo} : ${i18n>estado.inactivo} }"
+                            state="{= ${OServiceModel>activo} ? 'Success' : 'Error' }"
+                            class="{= ${OServiceModel>activo} ? 'statusBadge statusActive' : 'statusBadge statusInactive' }"/>
+
+                        <Text
+                            text="{
+                                path: 'OServiceModel>modifiedAt',
+                                type: 'sap.ui.model.type.DateTime',
+                                formatOptions: { pattern: 'dd/MM/yyyy HH:mm' }
+                            }"/>
+
+                        <HBox justifyContent="End">
+                            <Button
+                                text="{i18n>button.edit}"
+                                press="onEditPress"
+                                class="sapUiTinyMarginEnd"/>
+                            <Button
+                                text="{i18n>button.delete}"
+                                press="onDeletePress"
+                                type="Reject"/>
+                        </HBox>
+
+                    </cells>
+
+                </ColumnListItem>
+
+            </items>
+
+        </Table>
+
+        <HBox
+            id="idFooterContainerHBox"
+            justifyContent="Center"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+            <Text
+                id="idMostrandoRegistrosText"
+                text="{i18n>text.mostrando} 5 {i18n>text.de} 5"/>
+        </HBox>
+
+    </VBox>
+
+</mvc:View>

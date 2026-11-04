@@ -1,0 +1,106 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <Dialog
+        id="idPceCentroDialog"
+        title="{dialog>/title}"
+        contentWidth="520px"
+        contentHeight="auto"
+        draggable="true"
+        resizable="true">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <HBox wrap="Wrap" alignItems="End" justifyContent="SpaceBetween">
+                        <VBox class="sapUiTinyMarginEnd" width="10rem">
+                            <Label text="{i18n>label.centro.logistico}" design="Bold" required="true"/>
+                            <Input
+                                id="idDialogCentroLogistico"
+                                value="{dialog>/centroLogistico}"
+                                showValueHelp="true"
+                                valueHelpRequest="onValueHelpRequest"
+                                editable="{= !${dialog>/isEditing} }">
+                                <customData>
+                                    <core:CustomData key="entitySet" value="CentroLogisticoVHSet"/>
+                                    <core:CustomData key="field" value="Centro"/>
+                                    <core:CustomData key="dependentField" value="descripcion"/>
+                                </customData>
+                            </Input>
+                        </VBox>
+
+                        <VBox width="18rem">
+                            <Label text="{i18n>column.descripcion}" design="Bold"/>
+                            <Input
+                                id="idDialogDescripcion"
+                                value="{dialog>/descripcion}"
+                                editable="false"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="{i18n>label.usuario.pce}" design="Bold" required="true"/>
+                    <Input
+                        id="idDialogUsuario"
+                        value="{dialog>/usuario}"
+                        width="100%"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest"
+                        editable="{= !${dialog>/isEditing} }"
+                        change=".onPersonFieldChange">
+                        <customData>
+                            <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                            <core:CustomData key="field" value="Usuario"/>
+                            <core:CustomData key="dependentField" value="nombre"/>
+                        </customData>
+                    </Input>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="{i18n>label.nombre}" design="Bold" required="true"/>
+                    <Input
+                        id="idDialogNombre"
+                        value="{dialog>/nombre}"
+                        width="100%"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest"
+                        change=".onPersonFieldChange">
+                        <customData>
+                            <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                            <core:CustomData key="field" value="NombreApellido"/>
+                            <core:CustomData key="dependentField" value="email"/>
+                        </customData>
+                    </Input>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <Label text="{i18n>label.email}" design="Bold" required="true"/>
+                    <Input
+                        id="idDialogEmail"
+                        value="{dialog>/email}"
+                        width="100%"
+                        type="Email"/>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <CheckBox text="{i18n>label.activo}" selected="{dialog>/activo}"/>
+                </VBox>
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button text="{i18n>button.save}" type="Emphasized" press="onSaveDialog"/>
+        </beginButton>
+
+        <endButton>
+            <Button text="{i18n>button.cancel}" press="onCloseDialog"/>
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>
