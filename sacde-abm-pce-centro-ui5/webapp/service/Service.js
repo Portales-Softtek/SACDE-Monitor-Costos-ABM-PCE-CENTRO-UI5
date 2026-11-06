@@ -167,6 +167,20 @@
             }
         });
 
+        // Normalizar strings a mayúsculas para campos clave.
+        if (cleanData.centroLogistico) {
+            cleanData.centroLogistico = String(cleanData.centroLogistico).trim().toUpperCase();
+        }
+        if (cleanData.usuario) {
+            cleanData.usuario = String(cleanData.usuario).trim().toUpperCase();
+        }
+        if (cleanData.aprobadorUsuario) {
+            cleanData.aprobadorUsuario = String(cleanData.aprobadorUsuario).trim().toUpperCase();
+        }
+        if (cleanData.aprobadorSuplenteUsuario) {
+            cleanData.aprobadorSuplenteUsuario = String(cleanData.aprobadorSuplenteUsuario).trim().toUpperCase();
+        }
+
         return cleanData;
     }
 

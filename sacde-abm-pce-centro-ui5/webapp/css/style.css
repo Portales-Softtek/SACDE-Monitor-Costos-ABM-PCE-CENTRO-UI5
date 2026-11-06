@@ -6,7 +6,7 @@
 .stickyFilterBar {
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 1;
     background-color: #fff;
 }
 
@@ -50,4 +50,11 @@
     color: #B71C1C !important;
     background-color: #FFF5F5;
     border: 1px solid #B71C1C;
+}
+
+/* Barra vertical de estado activo/inactivo al inicio de la fila */
+.pmStatusStrip {
+    width: 0.25rem;
+    height: 2rem;
+    border-radius: 0.125rem;
 }

@@ -1,0 +1,167 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <Dialog
+        id="idPmAprobadorDialog"
+        title="{dialog>/title}"
+        contentWidth="720px"
+        contentHeight="auto"
+        draggable="true"
+        resizable="true">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <HBox wrap="Wrap" alignItems="End" justifyContent="SpaceBetween">
+                        <VBox class="sapUiTinyMarginEnd" width="10rem">
+                            <Label text="{i18n>label.centro.logistico}" design="Bold" required="true"/>
+                            <Input
+                                id="idPmDialogCentroLogistico"
+                                value="{dialog>/centroLogistico}"
+                                showValueHelp="true"
+                                valueHelpRequest="onValueHelpRequest"
+                                editable="{= !${dialog>/isEditing} }">
+                                <customData>
+                                    <core:CustomData key="entitySet" value="CentroLogisticoVHSet"/>
+                                    <core:CustomData key="field" value="Centro"/>
+                                    <core:CustomData key="dependentField" value="descripcion"/>
+                                </customData>
+                            </Input>
+                        </VBox>
+
+                        <VBox width="18rem">
+                            <Label text="{i18n>column.descripcion}" design="Bold"/>
+                            <Input
+                                id="idPmDialogDescripcion"
+                                value="{dialog>/descripcion}"
+                                editable="false"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- APROBADOR TITULAR -->
+                <VBox class="sapUiSmallMarginBottom">
+                    <Title text="{i18n>label.aprobador}" titleStyle="H5" class="sapUiTinyMarginBottom"/>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.usuario}" design="Bold" required="true"/>
+                        <Input
+                            id="idPmDialogAprobadorUsuario"
+                            value="{dialog>/aprobadorUsuario}"
+                            width="100%"
+                            showValueHelp="true"
+                            valueHelpRequest="onValueHelpRequest"
+                            editable="{= !${dialog>/isEditing} }"
+                            change=".onPersonFieldChange">
+                            <customData>
+                                <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                                <core:CustomData key="field" value="Usuario"/>
+                                <core:CustomData key="dependentField" value="aprobadorNombre"/>
+                            </customData>
+                        </Input>
+                    </VBox>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.nombre}" design="Bold" required="true"/>
+                        <Input
+                            id="idPmDialogAprobadorNombre"
+                            value="{dialog>/aprobadorNombre}"
+                            width="100%"
+                            showValueHelp="true"
+                            valueHelpRequest="onValueHelpRequest"
+                            change=".onPersonFieldChange"
+                            editable="false">
+                            <customData>
+                                <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                                <core:CustomData key="field" value="NombreApellido"/>
+                                <core:CustomData key="dependentField" value="aprobadorEmail"/>
+                            </customData>
+                        </Input>
+                    </VBox>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.email}" design="Bold" required="true"/>
+                        <Input
+                            id="idPmDialogAprobadorEmail"
+                            value="{dialog>/aprobadorEmail}"
+                            width="100%"
+                            type="Email"
+                            editable="false"/>
+                    </VBox>
+                </VBox>
+
+                <!-- SUPLENTE -->
+                <VBox class="sapUiSmallMarginBottom">
+                    <Title text="{i18n>label.aprobador.suplente}" titleStyle="H5" class="sapUiTinyMarginBottom"/>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.usuario}" design="Bold"/>
+                        <Input
+                            id="idPmDialogSuplenteUsuario"
+                            value="{dialog>/aprobadorSuplenteUsuario}"
+                            width="100%"
+                            showValueHelp="true"
+                            valueHelpRequest="onValueHelpRequest"
+                            change=".onSuplenteFieldChange">
+                            <customData>
+                                <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                                <core:CustomData key="field" value="Usuario"/>
+                                <core:CustomData key="dependentField" value="aprobadorSuplenteNombre"/>
+                            </customData>
+                        </Input>
+                    </VBox>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.nombre}" design="Bold"/>
+                        <Input
+                            id="idPmDialogSuplenteNombre"
+                            value="{dialog>/aprobadorSuplenteNombre}"
+                            width="100%"
+                            showValueHelp="true"
+                            valueHelpRequest="onValueHelpRequest"
+                            change=".onSuplenteFieldChange"
+                            editable="false">
+                            <customData>
+                                <core:CustomData key="entitySet" value="ZI_COA_USUARIO_VH"/>
+                                <core:CustomData key="field" value="NombreApellido"/>
+                                <core:CustomData key="dependentField" value="aprobadorSuplenteEmail"/>
+                            </customData>
+                        </Input>
+                    </VBox>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <Label text="{i18n>label.email}" design="Bold"/>
+                        <Input
+                            id="idPmDialogSuplenteEmail"
+                            value="{dialog>/aprobadorSuplenteEmail}"
+                            width="100%"
+                            type="Email"
+                            editable="false"/>
+                    </VBox>
+
+                    <VBox class="sapUiSmallMarginBottom">
+                        <CheckBox text="{i18n>label.aprobador.suplente.active}" selected="{dialog>/aprobadorSuplenteActivo}"/>
+                    </VBox>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBottom">
+                    <CheckBox text="{i18n>label.activo}" selected="{dialog>/activo}"/>
+                </VBox>
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button text="{i18n>button.save}" type="Emphasized" press="onSaveDialog"/>
+        </beginButton>
+
+        <endButton>
+            <Button text="{i18n>button.cancel}" press="onCloseDialog"/>
+        </endButton>
+
+    </Dialog>
+
+</core:FragmentDefinition>

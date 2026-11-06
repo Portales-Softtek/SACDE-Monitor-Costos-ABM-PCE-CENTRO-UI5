@@ -54,7 +54,7 @@
 
                             <Text
                                 id="idValueHelpDescripcionText"
-                                text="{OServiceModel>descripcion}"/>
+                                text="{= ${OServiceModel>descripcion} + (${OServiceModel>email} ? ' - ' + ${OServiceModel>email} : '') }"/>
 
                         </cells>
 

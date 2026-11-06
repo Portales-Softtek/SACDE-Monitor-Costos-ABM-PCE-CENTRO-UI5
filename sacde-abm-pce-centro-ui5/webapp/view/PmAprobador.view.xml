@@ -1,18 +1,317 @@
 <mvc:View
     controllerName="sacde.abm.pce.centro.ui5.controller.PmAprobador"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m">
 
     <VBox class="sapUiSmallMargin">
 
-        <Title
-            text="{i18n>view.pm.aprobador.title}"
-            titleStyle="H3"
-            class="sapUiSmallMarginBottom"/>
+        <!-- TÍTULO Y DESCRIPCIÓN -->
+        <VBox class="sapUiSmallMarginBottom">
+            <Title
+                id="idPmAprobadorTitle"
+                text="{i18n>view.pm.aprobador.title}"
+                titleStyle="H3"/>
+            <Text
+                text="{i18n>view.pm.aprobador.description}"
+                class="sapUiTinyMarginTop"/>
+        </VBox>
 
-        <MessageStrip
-            text="Vista en construcción"
-            type="Warning"/>
+        <!-- TABS -->
+        <IconTabBar
+            id="idPmIconTabBar"
+            selectedKey="pmAprobador"
+            select="onTabSelect"
+            class="sapUiResponsiveContentPadding">
+
+            <items>
+                <IconTabFilter
+                    id="idTabPmPceCentro"
+                    key="pceCentro"
+                    text="{i18n>tab.pce.centro}"/>
+                <IconTabFilter
+                    id="idTabPmPmAprobador"
+                    key="pmAprobador"
+                    text="{i18n>tab.pm.aprobador}"/>
+                <IconTabFilter
+                    id="idTabPmAuditoria"
+                    key="auditoria"
+                    text="{i18n>tab.auditoria}"/>
+            </items>
+
+        </IconTabBar>
+
+        <!-- FILTROS -->
+        <VBox
+            id="idPmFilterBarContainerVBox"
+            class="sapUiMediumMarginTop stickyFilterBar">
+
+            <HBox
+                id="idPmFilterFieldsHBox"
+                alignItems="End"
+                wrap="Wrap"
+                class="sapUiSmallMarginTopBottom">
+
+                <VBox
+                    id="idPmCentroLogisticoFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="12rem">
+
+                    <Label text="{i18n>label.centro.logistico}" design="Bold"/>
+
+                    <Input
+                        id="idPmFilterCentroLogistico"
+                        width="100%"
+                        placeholder="{i18n>placeholder.centro.logistico}"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest">
+
+                        <customData>
+                            <core:CustomData
+                                key="entitySet"
+                                value="CentroLogisticoVHSet"/>
+
+                            <core:CustomData
+                                key="field"
+                                value="Centro"/>
+                        </customData>
+
+                    </Input>
+
+                </VBox>
+
+                <VBox
+                    id="idPmAprobadorFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="18rem">
+
+                    <Label text="{i18n>label.pm.aprobador}" design="Bold"/>
+
+                    <Input
+                        id="idPmFilterAprobador"
+                        width="100%"
+                        placeholder="{i18n>placeholder.usuario.pce}"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest">
+
+                        <customData>
+                            <core:CustomData
+                                key="entitySet"
+                                value="ZI_COA_USUARIO_VH"/>
+
+                            <core:CustomData
+                                key="field"
+                                value="NombreApellido"/>
+                        </customData>
+
+                    </Input>
+
+                </VBox>
+
+                <VBox
+                    id="idPmEstadoFilterVBox"
+                    class="sapUiSmallMarginEnd"
+                    width="10rem">
+
+                    <Label text="{i18n>label.estado}" design="Bold"/>
+
+                    <Select
+                        id="idPmFilterEstado"
+                        width="100%"
+                        selectedKey="activos">
+
+                        <items>
+                            <core:Item key="todos" text="{i18n>estado.todos}"/>
+                            <core:Item key="activos" text="{i18n>estado.activos}"/>
+                            <core:Item key="inactivos" text="{i18n>estado.inactivos}"/>
+                        </items>
+
+                    </Select>
+
+                </VBox>
+
+                <VBox
+                    id="idPmBuscarButtonVBox">
+
+                    <Button
+                        id="idPmBuscarButton"
+                        text="{i18n>button.search}"
+                        type="Emphasized"
+                        press="onSearch"/>
+
+                </VBox>
+
+                <VBox
+                    id="idPmLimpiarButtonVBox"
+                    class="sapUiSmallMarginBegin">
+
+                    <Button
+                        id="idPmLimpiarButton"
+                        text="{i18n>button.clear}"
+                        press="onClearFilters"/>
+
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+
+        <!-- REGISTROS Y ACCIONES -->
+        <HBox
+            id="idPmHeaderContainerHBox"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+
+            <Title
+                id="idPmRegistrosTitle"
+                text="{i18n>title.registros} (0)"
+                titleStyle="H5"/>
+
+            <HBox>
+                <Button
+                    id="idPmExportarExcelButton"
+                    text="{i18n>button.export.excel}"
+                    press="onExportExcel"
+                    class="sapUiTinyMarginEnd"/>
+
+                <Button
+                    id="idPmNuevoButton"
+                    text="{i18n>button.new}"
+                    type="Emphasized"
+                    icon="sap-icon://add"
+                    press="onCreatePress"/>
+            </HBox>
+
+        </HBox>
+
+        <!-- TABLA -->
+        <Table
+            id="idTablePmAprobador"
+            items="{
+                path: 'OServiceModel>/PmAprobadorCentro',
+                sorter: [
+                    { path: 'centroLogistico' },
+                    { path: 'activo', descending: true }
+                ]
+            }"
+            growing="true"
+            growingScrollToLoad="true"
+            class="sapUiSmallMarginTop">
+
+            <columns>
+
+                <Column width="8rem">
+                    <Text text="{i18n>column.centro.logistico}"/>
+                </Column>
+
+                <Column>
+                    <Text text="{i18n>column.descripcion}"/>
+                </Column>
+
+                <Column width="22rem">
+                    <Text text="{i18n>column.pm.aprobador}"/>
+                </Column>
+
+                <Column width="22rem">
+                    <Text text="{i18n>column.pm.suplente}"/>
+                </Column>
+
+                <Column width="13rem" hAlign="End">
+                    <Text text="{i18n>column.action}"/>
+                </Column>
+
+            </columns>
+
+            <items>
+
+                <ColumnListItem highlight="{= ${OServiceModel>activo} ? 'Success' : 'Error'}">
+
+                    <cells>
+
+                        <Text text="{OServiceModel>centroLogistico}"/>
+
+                        <Text text="{OServiceModel>descripcion}"/>
+
+                        <!-- PM Aprobador chip -->
+                        <HBox alignItems="Center" renderType="Bare">
+                            <core:Icon
+                                src="{= ${OServiceModel>aprobadorSuplenteActivo} ? 'sap-icon://circle-task-2' : 'sap-icon://accept'}"
+                                color="{= ${OServiceModel>aprobadorSuplenteActivo} ? '#B0B0B0' : '#107E3E'}"
+                                class="sapUiTinyMarginEnd"/>
+                            <HBox
+                                class="pceChip sapUiTinyMarginEnd"
+                                alignItems="Center"
+                                justifyContent="Center">
+                                <Text
+                                    text="{= ${OServiceModel>aprobadorUsuario} ? ${OServiceModel>aprobadorUsuario}.substring(0, 2).toUpperCase() : '' }"
+                                    textAlign="Center"/>
+                            </HBox>
+                            <VBox>
+                                <FormattedText
+                                    htmlText="{= ${OServiceModel>aprobadorSuplenteActivo}
+                                        ? ${OServiceModel>aprobadorNombre}
+                                        : '&lt;span style=&quot;color:#107E3E;font-weight:bold&quot;&gt;' + ${OServiceModel>aprobadorNombre} + '&lt;/span&gt;' }"/>
+                                <Text
+                                    text="{= ${OServiceModel>aprobadorEmail} + ' - ' + ${OServiceModel>aprobadorUsuario} }"
+                                    class="pceEmail"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Suplente PM chip -->
+                        <HBox alignItems="Center" renderType="Bare">
+                            <core:Icon
+                                src="{= ${OServiceModel>aprobadorSuplenteActivo} ? 'sap-icon://accept' : 'sap-icon://circle-task-2'}"
+                                color="{= ${OServiceModel>aprobadorSuplenteActivo} ? '#107E3E' : '#B0B0B0'}"
+                                class="sapUiTinyMarginEnd"/>
+                            <HBox
+                                class="pceChip sapUiTinyMarginEnd"
+                                alignItems="Center"
+                                justifyContent="Center"
+                                visible="{= !!${OServiceModel>aprobadorSuplenteUsuario} }">
+                                <Text
+                                    text="{= ${OServiceModel>aprobadorSuplenteUsuario} ? ${OServiceModel>aprobadorSuplenteUsuario}.substring(0, 2).toUpperCase() : '' }"
+                                    textAlign="Center"/>
+                            </HBox>
+                            <VBox>
+                                <FormattedText
+                                    htmlText="{= ${OServiceModel>aprobadorSuplenteActivo}
+                                        ? '&lt;span style=&quot;color:#107E3E;font-weight:bold&quot;&gt;' + (${OServiceModel>aprobadorSuplenteNombre} || '') + '&lt;/span&gt;'
+                                        : (${OServiceModel>aprobadorSuplenteNombre} || '') }"/>
+                                <Text
+                                    text="{= ${OServiceModel>aprobadorSuplenteUsuario} ? ${OServiceModel>aprobadorSuplenteEmail} + ' - ' + ${OServiceModel>aprobadorSuplenteUsuario} : '' }"
+                                    class="pceEmail"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox justifyContent="End">
+                            <Button
+                                text="{i18n>button.edit}"
+                                press="onEditPress"
+                                class="sapUiTinyMarginEnd"/>
+                            <Button
+                                text="{i18n>button.delete}"
+                                press="onDeletePress"
+                                type="Reject"/>
+                        </HBox>
+
+                    </cells>
+
+                </ColumnListItem>
+
+            </items>
+
+        </Table>
+
+        <HBox
+            id="idPmFooterContainerHBox"
+            justifyContent="Center"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+            <Text
+                id="idPmMostrandoRegistrosText"
+                text="{i18n>text.mostrando} 0 {i18n>text.de} 0"/>
+        </HBox>
 
     </VBox>
 

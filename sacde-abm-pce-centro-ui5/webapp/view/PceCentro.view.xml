@@ -214,10 +214,6 @@
                     <Text text="{i18n>column.pce}"/>
                 </Column>
 
-                <Column width="7rem">
-                    <Text text="{i18n>column.estado}"/>
-                </Column>
-
                 <Column width="13rem">
                     <Text text="{i18n>column.modified.at}"/>
                 </Column>
@@ -230,7 +226,7 @@
 
             <items>
 
-                <ColumnListItem>
+                <ColumnListItem highlight="{= ${OServiceModel>activo} ? 'Success' : 'Error'}">
 
                     <cells>
 
@@ -255,11 +251,6 @@
                                     class="pceEmail"/>
                             </VBox>
                         </HBox>
-
-                        <ObjectStatus
-                            text="{= ${OServiceModel>activo} ? ${i18n>estado.activo} : ${i18n>estado.inactivo} }"
-                            state="{= ${OServiceModel>activo} ? 'Success' : 'Error' }"
-                            class="{= ${OServiceModel>activo} ? 'statusBadge statusActive' : 'statusBadge statusInactive' }"/>
 
                         <Text
                             text="{

@@ -26,6 +26,9 @@ function(
         {
 
             onInit: function () {
+                const oRouter = this.getOwnerComponent().getRouter();
+                oRouter.getRoute("RouteMain").attachPatternMatched(this._onRouteMatched, this);
+
                 const oModel = this.getOwnerComponent().getModel("OServiceModel");
                 if (oModel) {
                     oModel.attachEventOnce("dataLoaded", () => {
@@ -35,6 +38,15 @@ function(
 
                 // Inicializar contador en 0 para evitar el placeholder (5)
                 this._actualizarContador();
+            },
+
+            _onRouteMatched: function () {
+                const oIconTabBar = this.byId("idIconTabBar");
+                if (oIconTabBar && oIconTabBar.getSelectedKey() !== "pceCentro") {
+                    oIconTabBar.setSelectedKey("pceCentro");
+                }
+
+                this._actualizarContador(this.byId("idTablePceCentro")?.getBinding("items"));
             },
 
             formatDateTime: function (sValue) {
