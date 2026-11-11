@@ -2,6 +2,21 @@
     "use strict";
 
     let _baseContexto = "/abm-contexto/";
+    const LIMITE_AUDITORIA = 500;
+
+    // Extrae el mensaje legible de una respuesta de error OData (JSON {error:{message}}).
+    // Si el cuerpo no es JSON, devuelve el texto tal cual.
+    async function _errorDeRespuesta(response) {
+        const sTexto = await response.text();
+        let sMensaje = sTexto;
+        try {
+            const oJson = JSON.parse(sTexto);
+            sMensaje = oJson?.error?.message?.value ?? oJson?.error?.message ?? sTexto;
+        } catch (e) {
+            // cuerpo no JSON: se usa el texto
+        }
+        return new Error(`HTTP ${response.status}: ${sMensaje}`);
+    }
 
     async function fetchEndpoint(endpoint) {
         try {
@@ -30,7 +45,6 @@
 
     async function crearPceCentroLogistico(oData) {
         const cleanData = _cleanPayload(oData);
-        console.log(cleanData)
         const response = await fetch(
             `${_baseContexto}PceCentroLogistico`,
             {
@@ -43,8 +57,7 @@
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw await _errorDeRespuesta(response);
         }
 
         return await response.json();
@@ -61,7 +74,7 @@
         const response = await fetch(
             `${_baseContexto}PceCentroLogistico('${sID}')`,
             {
-                method: "PUT",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -70,8 +83,7 @@
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw await _errorDeRespuesta(response);
         }
 
         return await response.json();
@@ -92,8 +104,7 @@
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw await _errorDeRespuesta(response);
         }
 
         return await response.json();
@@ -110,7 +121,7 @@
         const response = await fetch(
             `${_baseContexto}PmAprobadorCentro('${sID}')`,
             {
-                method: "PUT",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -119,8 +130,7 @@
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw await _errorDeRespuesta(response);
         }
 
         return await response.json();
@@ -142,8 +152,31 @@
         );
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw await _errorDeRespuesta(response);
+        }
+
+        return { success: true };
+    }
+
+    // Baja/alta lógica: PATCH solo del flag "activo". Reemplaza el DELETE, que el backend no permite.
+    async function cambiarActivo(sEntitySet, sID, bActivo) {
+        if (!sID) {
+            throw new Error("ID is required for status change");
+        }
+
+        const response = await fetch(
+            `${_baseContexto}${sEntitySet}('${sID}')`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ activo: bActivo })
+            }
+        );
+
+        if (!response.ok) {
+            throw await _errorDeRespuesta(response);
         }
 
         return { success: true };
@@ -188,7 +221,7 @@
         const sValueUpper = sValue.toUpperCase();
 
         const response = await fetch(
-            `${_baseContexto}${sEntitySet}?$filter=contains(${sField},'${encodeURIComponent(sValueUpper)}')`
+            `${_baseContexto}${sEntitySet}?$filter=contains(${sField},'${encodeURIComponent(sValueUpper.replace(/'/g, "''"))}')`
         );
 
         if (!response.ok) {
@@ -215,6 +248,44 @@
         return aRows;
     }
 
+    async function getAuditoria(oFiltros = {}) {
+        const aCondiciones = [];
+
+        if (oFiltros.usuario) {
+            aCondiciones.push(`contains(ejecutadoPor,'${_escaparOData(oFiltros.usuario)}')`);
+        }
+        if (oFiltros.desde) {
+            aCondiciones.push(`fecha ge ${oFiltros.desde}`);
+        }
+        if (oFiltros.hasta) {
+            aCondiciones.push(`fecha le ${oFiltros.hasta}`);
+        }
+        if (oFiltros.tabla) {
+            aCondiciones.push(`tabla eq '${_escaparOData(oFiltros.tabla)}'`);
+        }
+        if (oFiltros.centroLogistico) {
+            aCondiciones.push(`contains(centroLogistico,'${_escaparOData(oFiltros.centroLogistico)}')`);
+        }
+
+        // Tope de filas para que el log no crezca sin límite en la vista.
+        let sUrl = `${_baseContexto}ContextoAuditoria?$orderby=fecha%20desc&$top=${LIMITE_AUDITORIA}`;
+        if (aCondiciones.length) {
+            sUrl += `&$filter=${encodeURIComponent(aCondiciones.join(" and "))}`;
+        }
+
+        const response = await fetch(sUrl);
+        if (!response.ok) {
+            throw await _errorDeRespuesta(response);
+        }
+
+        const data = await response.json();
+        return data.value || [];
+    }
+
+    function _escaparOData(sValor) {
+        return String(sValor).trim().replace(/'/g, "''");
+    }
+
     return {
         init: function (base) { _baseContexto = base; },
         crearPceCentroLogistico: crearPceCentroLogistico,
@@ -222,7 +293,18 @@
         crearPmAprobadorCentro: crearPmAprobadorCentro,
         actualizarPmAprobadorCentro: actualizarPmAprobadorCentro,
         eliminarRegistro: eliminarRegistro,
+        cambiarActivo: cambiarActivo,
         searchVH: searchVH,
+        getAuditoria: getAuditoria,
+        LIMITE_AUDITORIA: LIMITE_AUDITORIA,
+        getPermisos: async function () {
+            const response = await fetch(`${_baseContexto}Permisos`);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            return data.value || [];
+        },
 
         getPceCentroLogisticoData: async function () {
             try {

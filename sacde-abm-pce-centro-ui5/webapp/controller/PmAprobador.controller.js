@@ -131,8 +131,8 @@ function(
 
                 let iFiltrados = iTotal;
                 if (oBinding) {
-                    const aContexts = oBinding.getContexts();
-                    iFiltrados = aContexts.length;
+                    // getLength() no está limitado por el sizeLimit del modelo (getContexts() sí).
+                    iFiltrados = oBinding.getLength();
                 }
 
                 const sRegistrosTitle = oResourceBundle.getText("title.registros");
@@ -169,18 +169,23 @@ function(
                     oItem.activo ? oResourceBundle.getText("estado.activo") : oResourceBundle.getText("estado.inactivo")
                 ]);
 
-                const csvContent = "data:text/csv;charset=utf-8,"
-                    + [aHeaders, ...aRows]
-                        .map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(";"))
-                        .join("\n");
+                // BOM para que Excel respete los acentos; celdas que empiezan con = + - @ se neutralizan.
+                const csvContent = "\uFEFF" + [aHeaders, ...aRows]
+                    .map(e => e.map(cell => {
+                        let s = String(cell).replace(/"/g, '""');
+                        if (/^[=+\-@]/.test(s)) s = `'${s}`;
+                        return `"${s}"`;
+                    }).join(";"))
+                    .join("\n");
 
-                const encodedUri = encodeURI(csvContent);
+                const url = URL.createObjectURL(new Blob([csvContent], { type: "text/csv;charset=utf-8" }));
                 const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
+                link.setAttribute("href", url);
                 link.setAttribute("download", "PM_aprobador_por_centro_logistico.csv");
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                URL.revokeObjectURL(url);
             },
 
             onValueHelpRequest: function (oEvent) {
@@ -280,15 +285,19 @@ function(
             },
 
             _openValueHelp: async function () {
-                if (!this._oValueHelpDialog) {
-                    this._oValueHelpDialog = await Fragment.load({
+                // Se guarda la promesa: dos aperturas rápidas no cargan el fragmento dos veces.
+                if (!this._pValueHelpDialog) {
+                    this._pValueHelpDialog = Fragment.load({
                         id: this.getView().getId(),
                         name: "sacde.abm.pce.centro.ui5.fragment.ValueHelp",
                         controller: this
+                    }).then((oDialog) => {
+                        this._oValueHelpDialog = oDialog;
+                        this.getView().addDependent(oDialog);
+                        return oDialog;
                     });
-
-                    this.getView().addDependent(this._oValueHelpDialog);
                 }
+                await this._pValueHelpDialog;
 
                 this._oValueHelpDialog.open();
             },
@@ -392,15 +401,18 @@ function(
 
                 this.getView().setModel(oModel,"dialog");
 
-                if(!this._oDialog){
-                    this._oDialog = await Fragment.load({
+                if(!this._pDialog){
+                    this._pDialog = Fragment.load({
                         id: this.getView().getId(),
                         name: "sacde.abm.pce.centro.ui5.fragment.PmAprobadorDialog",
                         controller: this
+                    }).then((oDialog) => {
+                        this._oDialog = oDialog;
+                        this.getView().addDependent(oDialog);
+                        return oDialog;
                     });
-
-                    this.getView().addDependent(this._oDialog);
                 }
+                await this._pDialog;
 
                 this._oDialog.open();
             },
@@ -540,48 +552,43 @@ function(
                 this._oDialog.close();
             },
 
-            onDeletePress:function(oEvent){
+            onToggleActivoPress:function(oEvent){
                 const oData = oEvent
                     .getSource()
                     .getBindingContext("OServiceModel")
                     .getObject();
 
                 const sID = oData.ID;
+                const bNuevoActivo = !oData.activo;
                 const sClave = `${oData.centroLogistico}`;
 
                 const oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
-                MessageBox.confirm(
-                    oResourceBundle.getText("message.confirm.delete") + ` \"${sClave}\"?`,
-                    {
-                        title: oResourceBundle.getText("dialog.confirm.title"),
-                        onClose: async (sAction) => {
-                            if(sAction === MessageBox.Action.OK){
-                                try{
-                                    await Service.eliminarRegistro("PmAprobadorCentro", sID);
-                                    const oRB = this.getView().getModel("i18n").getResourceBundle();
-                                    MessageToast.show(oRB.getText("message.success.deleted"));
+                const sAccion = oResourceBundle.getText(bNuevoActivo ? "button.reactivate" : "button.deactivate");
 
-                                    await this._reloadPmAprobadorData();
-                                }catch(e){
-                                    const oRB = this.getView().getModel("i18n").getResourceBundle();
-                                    let sErrorMsg = oRB.getText("message.error.delete");
+                // Desactivar el PM con suplente activo deja el centro sin aprobador: se advierte antes.
+                let sMensaje = `${sAccion} \"${sClave}\"?`;
+                if (!bNuevoActivo && oData.aprobadorSuplenteActivo) {
+                    sMensaje += "\n\n" + oResourceBundle.getText("pm.warning.suplente.activo");
+                }
 
-                                    if(e.message){
-                                        sErrorMsg = e.message;
-
-                                        if(e.message.includes("HTTP")){
-                                            sErrorMsg = oRB.getText("message.error.server") + e.message;
-                                        }
-                                    }
-
-                                    MessageBox.error(sErrorMsg, {
-                                        title: oRB.getText("message.error.delete.title")
-                                    });
-                                }
-                            }
+                MessageBox.confirm(sMensaje, {
+                    title: oResourceBundle.getText("dialog.confirm.title"),
+                    onClose: async (sAction) => {
+                        if (sAction !== MessageBox.Action.OK) {
+                            return;
+                        }
+                        try {
+                            await Service.cambiarActivo("PmAprobadorCentro", sID, bNuevoActivo);
+                            MessageToast.show(oResourceBundle.getText("message.success.updated"));
+                            await this._reloadPmAprobadorData();
+                        } catch (e) {
+                            // Se muestra el mensaje del backend tal cual (p. ej. 409 de unicidad al reactivar).
+                            MessageBox.error(e.message || oResourceBundle.getText("message.error.save"), {
+                                title: oResourceBundle.getText("message.error.save.title")
+                            });
                         }
                     }
-                );
+                });
             },
 
             _reloadPmAprobadorData: async function(){

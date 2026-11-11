@@ -181,7 +181,8 @@
                     text="{i18n>button.new}"
                     type="Emphasized"
                     icon="sap-icon://add"
-                    press="onCreatePress"/>
+                    press="onCreatePress"
+                    visible="{permisos>/canEdit}"/>
             </HBox>
 
         </HBox>
@@ -262,11 +263,18 @@
                             <Button
                                 text="{i18n>button.edit}"
                                 press="onEditPress"
-                                class="sapUiTinyMarginEnd"/>
+                                class="sapUiTinyMarginEnd"
+                                visible="{permisos>/canEdit}"/>
                             <Button
-                                text="{i18n>button.delete}"
-                                press="onDeletePress"
-                                type="Reject"/>
+                                text="{i18n>button.deactivate}"
+                                press="onToggleActivoPress"
+                                type="Reject"
+                                visible="{= ${permisos>/canEdit} &amp;&amp; ${OServiceModel>activo} }"/>
+                            <Button
+                                text="{i18n>button.reactivate}"
+                                press="onToggleActivoPress"
+                                type="Accept"
+                                visible="{= ${permisos>/canEdit} &amp;&amp; !${OServiceModel>activo} }"/>
                         </HBox>
 
                     </cells>

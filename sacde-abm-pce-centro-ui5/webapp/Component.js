@@ -25,6 +25,12 @@ sap.ui.define([
             }), "OServiceModel");
             this._loadData();
 
+            // Permisos del usuario: si falla la lectura, la UI queda en solo lectura.
+            // TEMPORAL (pruebas): forzar botones visibles. Quitar al validar roles.
+            const bForzarEdicion = true;
+            this.setModel(new JSONModel({ canEdit: bForzarEdicion }), "permisos");
+            this._loadPermisos();
+
             // call the base component's init function
             UIComponent.prototype.init.apply(this, arguments);
 
@@ -52,6 +58,19 @@ sap.ui.define([
 
             this.getModel("OServiceModel").setData(cleanData);
             this.getModel("OServiceModel").fireEvent("dataLoaded");
+        },
+
+        _loadPermisos: async function () {
+            // TEMPORAL: con el interruptor de pruebas activo no se pisa canEdit.
+            if (this.getModel("permisos").getProperty("/canEdit") === true) {
+                return;
+            }
+            try {
+                const aRows = await Service.getPermisos();
+                this.getModel("permisos").setProperty("/canEdit", !!aRows[0]?.canEdit);
+            } catch (e) {
+                this.getModel("permisos").setProperty("/canEdit", false);
+            }
         },
 
         refreshData: async function () {

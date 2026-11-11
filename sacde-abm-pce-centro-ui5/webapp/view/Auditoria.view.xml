@@ -1,18 +1,205 @@
 <mvc:View
     controllerName="sacde.abm.pce.centro.ui5.controller.Auditoria"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m">
 
     <VBox class="sapUiSmallMargin">
 
-        <Title
-            text="{i18n>tab.auditoria}"
-            titleStyle="H3"
-            class="sapUiSmallMarginBottom"/>
+        <!-- TÍTULO Y DESCRIPCIÓN -->
+        <VBox class="sapUiSmallMarginBottom">
+            <Title
+                id="idAuditoriaTitle"
+                text="{i18n>tab.auditoria}"
+                titleStyle="H3"/>
+            <Text
+                text="{i18n>view.auditoria.description}"
+                class="sapUiTinyMarginTop"/>
+        </VBox>
 
-        <MessageStrip
-            text="Vista en construcción"
-            type="Warning"/>
+        <!-- TABS -->
+        <IconTabBar
+            id="idAuditoriaIconTabBar"
+            selectedKey="auditoria"
+            select="onTabSelect"
+            class="sapUiResponsiveContentPadding">
+
+            <items>
+                <IconTabFilter
+                    id="idTabAudPceCentro"
+                    key="pceCentro"
+                    text="{i18n>tab.pce.centro}"/>
+                <IconTabFilter
+                    id="idTabAudPmAprobador"
+                    key="pmAprobador"
+                    text="{i18n>tab.pm.aprobador}"/>
+                <IconTabFilter
+                    id="idTabAudAuditoria"
+                    key="auditoria"
+                    text="{i18n>tab.auditoria}"/>
+            </items>
+
+        </IconTabBar>
+
+        <!-- FILTROS -->
+        <VBox
+            id="idAudFilterBarContainerVBox"
+            class="sapUiMediumMarginTop stickyFilterBar">
+
+            <HBox
+                id="idAudFilterFieldsHBox"
+                alignItems="End"
+                wrap="Wrap"
+                class="sapUiSmallMarginTopBottom">
+
+                <VBox class="sapUiSmallMarginEnd" width="12rem">
+                    <Label text="{i18n>aud.filtro.usuario}" design="Bold"/>
+                    <Input
+                        id="idAudUsuario"
+                        width="100%"
+                        placeholder="{i18n>placeholder.usuario}"
+                        submit="onBuscar"/>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginEnd" width="11rem">
+                    <Label text="{i18n>aud.filtro.desde}" design="Bold"/>
+                    <DatePicker
+                        id="idAudDesde"
+                        width="100%"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd/MM/yyyy"/>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginEnd" width="11rem">
+                    <Label text="{i18n>aud.filtro.hasta}" design="Bold"/>
+                    <DatePicker
+                        id="idAudHasta"
+                        width="100%"
+                        valueFormat="yyyy-MM-dd"
+                        displayFormat="dd/MM/yyyy"/>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginEnd" width="12rem">
+                    <Label text="{i18n>aud.filtro.tabla}" design="Bold"/>
+                    <Select id="idAudTabla" width="100%" selectedKey="todas">
+                        <items>
+                            <core:Item key="todas" text="{i18n>aud.filtro.todas}"/>
+                            <core:Item key="PceCentroLogistico" text="{i18n>aud.tabla.pce}"/>
+                            <core:Item key="PmAprobadorCentro" text="{i18n>aud.tabla.pm}"/>
+                        </items>
+                    </Select>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginEnd" width="10rem">
+                    <Label text="{i18n>label.centro.logistico}" design="Bold"/>
+                    <Input
+                        id="idAudCentro"
+                        width="100%"
+                        placeholder="{i18n>placeholder.centro.logistico}"
+                        submit="onBuscar"/>
+                </VBox>
+
+                <VBox>
+                    <Button
+                        id="idAudBuscarButton"
+                        text="{i18n>button.search}"
+                        type="Emphasized"
+                        press="onBuscar"/>
+                </VBox>
+
+                <VBox class="sapUiSmallMarginBegin">
+                    <Button
+                        id="idAudLimpiarButton"
+                        text="{i18n>button.clear}"
+                        press="onLimpiarFiltros"/>
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+
+        <!-- REGISTROS Y ACCIONES -->
+        <HBox
+            id="idAudHeaderContainerHBox"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+
+            <Title
+                id="idAudTitulo"
+                text="{i18n>aud.title.movimientos} (0)"
+                titleStyle="H5"/>
+
+            <Button
+                id="idAudExportarExcelButton"
+                text="{i18n>button.export.excel}"
+                press="onExportExcel"/>
+
+        </HBox>
+
+        <!-- TABLA -->
+        <Table
+            id="idTableAuditoria"
+            items="{AuditoriaModel>/Movimientos}"
+            growing="true"
+            growingScrollToLoad="true"
+            class="sapUiSmallMarginTop">
+
+            <columns>
+                <Column width="11rem">
+                    <Text text="{i18n>aud.col.fecha}"/>
+                </Column>
+                <Column width="8rem">
+                    <Text text="{i18n>aud.col.usuario}"/>
+                </Column>
+                <Column width="8rem">
+                    <Text text="{i18n>aud.col.accion}"/>
+                </Column>
+                <Column width="9rem">
+                    <Text text="{i18n>aud.col.tabla}"/>
+                </Column>
+                <Column width="7rem">
+                    <Text text="{i18n>aud.col.centro}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>aud.col.campo}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>aud.col.anterior}"/>
+                </Column>
+                <Column>
+                    <Text text="{i18n>aud.col.nuevo}"/>
+                </Column>
+            </columns>
+
+            <items>
+                <ColumnListItem>
+                    <cells>
+                        <Text text="{AuditoriaModel>fecha}"/>
+                        <Text text="{AuditoriaModel>usuario}"/>
+                        <ObjectStatus
+                            text="{AuditoriaModel>accionTexto}"
+                            state="{AuditoriaModel>accionEstado}"/>
+                        <Text text="{AuditoriaModel>tablaTexto}"/>
+                        <Text text="{AuditoriaModel>centroLogistico}"/>
+                        <Text text="{AuditoriaModel>campo}"/>
+                        <FormattedText htmlText="{AuditoriaModel>valorAnteriorHtml}"/>
+                        <Text text="{AuditoriaModel>valorNuevo}"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+
+        </Table>
+
+        <HBox
+            id="idAudFooterContainerHBox"
+            justifyContent="Center"
+            alignItems="Center"
+            class="sapUiSmallMarginTop">
+            <Text
+                id="idAudMostrandoText"
+                text="{i18n>text.mostrando} 0 {i18n>text.de} 0"/>
+        </HBox>
 
     </VBox>
 
